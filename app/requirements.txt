@@ -1,4 +1,6 @@
 fastapi
 uvicorn
 jinja2
-websockets
+sqlalchemy
+python-multipart
+pydantic
