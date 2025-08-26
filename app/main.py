@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Form, HTTPException, Depends, status, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -173,14 +172,14 @@ async def main_app(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "ws_url": ws_url, "user_id": user.id, "full_name": user.full_name})
 
 @app.post("/login")
-async def login(response: HTMLResponse, username: str = Form(...), password: str = Form(...), db: SessionLocal = Depends(get_db)):
+async def login(request: Request, username: str = Form(...), password: str = Form(...), db: SessionLocal = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
     
     if not user or user.password_hash != hash_password(password):
         # On failure, redirect back to the login page with an error message
         return templates.TemplateResponse(
             "login.html", 
-            {"request": Request, "error_message": "Invalid username or password."}
+            {"request": request, "error_message": "Invalid username or password."}
         )
     
     # On success, create a session token and redirect
@@ -203,6 +202,7 @@ async def logout(request: Request):
 
 @app.post("/register")
 async def register(
+    request: Request,
     username: str = Form(...),
     password: str = Form(...),
     full_name: str = Form(...),
@@ -213,13 +213,13 @@ async def register(
     if db.query(User).filter(User.username == username).first():
         return templates.TemplateResponse(
             "login.html", 
-            {"request": Request, "error_message": "Username already registered."}
+            {"request": request, "error_message": "Username already registered."}
         )
     
     if db.query(User).filter(User.email == email).first():
         return templates.TemplateResponse(
             "login.html", 
-            {"request": Request, "error_message": "Email already registered."}
+            {"request": request, "error_message": "Email already registered."}
         )
     
     # Save the uploaded file
@@ -251,7 +251,7 @@ async def register(
     # On successful registration, redirect to the login page with a success message
     return templates.TemplateResponse(
         "login.html", 
-        {"request": Request, "success_message": "Registration successful! You can now log in."}
+        {"request": request, "success_message": "Registration successful! You can now log in."}
     )
 
 @app.get("/friends", response_model=List[FriendshipData])
