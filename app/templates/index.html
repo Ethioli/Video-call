@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastAPI Video Call</title>
+    <title>Ethioli</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -12,7 +12,7 @@
             font-family: 'Inter', sans-serif;
         }
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin-top: 50px;
         }
         .video-container {
@@ -61,43 +61,90 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
+        #call-buttons {
+            display: none;
+        }
+        #friends-list .list-group-item:hover, #search-results .list-group-item:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
     </style>
-    <!-- Add this script tag to inject the WS URL from the server -->
-    <script>
-        const WS_URL = "{{ ws_url }}";
-    </script>
 </head>
 <body>
 
     <div class="container text-center">
-        <h1 class="my-4 fw-bold">FastAPI Video Call</h1>
-        <p class="lead text-muted">A simple peer-to-peer video calling app using FastAPI, WebSockets, and WebRTC.</p>
-
-        <div class="card p-4 shadow-sm rounded-4">
-            <h2 class="card-title mb-3">Your ID: <span id="user-id" class="text-primary">Loading...</span></h2>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control rounded-start-pill" id="remote-id-input" placeholder="Enter remote user ID...">
-                <button class="btn btn-primary rounded-end-pill" id="call-btn">Call</button>
-            </div>
-            <p class="text-muted">Share your ID with someone to connect with them.</p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="my-4 fw-bold">Ethioli video-call</h1>
+            <form action="/logout" method="post">
+                <button type="submit" class="btn btn-outline-danger" id="logout-btn">Logout</button>
+            </form>
         </div>
 
-        <div class="video-container">
-            <div class="video-box">
-                <video id="local-video" autoplay muted playsinline></video>
-                <span class="video-label">You</span>
+        <p class="lead text-muted">A simple peer-to-peer video calling app.</p>
+
+        <div class="card p-4 shadow-sm rounded-4">
+            <h2 class="card-title mb-3">Welcome, <span id="full-name-display" class="text-primary">{{ full_name }}</span>!</h2>
+            <div id="call-buttons" class="d-flex justify-content-center gap-2 mb-3">
+                <button class="btn btn-success" id="answer-btn" style="display:none;">Answer</button>
+                <button class="btn btn-danger" id="decline-btn" style="display:none;">Decline</button>
+                <button class="btn btn-warning" id="end-call-btn" style="display:none;">End Call</button>
             </div>
-            <div class="video-box">
-                <video id="remote-video" autoplay playsinline></video>
-                <span class="video-label">Remote</span>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="video-container">
+                    <div class="video-box">
+                        <video id="local-video" autoplay muted playsinline></video>
+                        <span class="video-label">You</span>
+                    </div>
+                    <div class="video-box">
+                        <video id="remote-video" autoplay playsinline></video>
+                        <span class="video-label">Remote</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm rounded-4 mb-4">
+                    <h5 class="card-title text-start">Friends:</h5>
+                    <ul class="list-group list-group-flush" id="friends-list">
+                        <!-- Friends will be dynamically added here -->
+                    </ul>
+                </div>
+                <div class="card p-3 shadow-sm rounded-4">
+                    <h5 class="card-title text-start">Find Friends:</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control rounded-start-pill" id="search-input" placeholder="Search for users...">
+                        <button class="btn btn-secondary rounded-end-pill" id="search-btn">Search</button>
+                    </div>
+                    <ul class="list-group list-group-flush" id="search-results">
+                        <!-- Search results will be dynamically added here -->
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Message box for alerts -->
     <div id="message-box" class="shadow-lg"></div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
+    <script>
+        // Pass the user ID and WS URL from the server-side
+        const USER_ID = "{{ user_id }}";
+        const WS_URL = "{{ ws_url }}";
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/main.js"></script>
 </body>
