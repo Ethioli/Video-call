@@ -1,3 +1,4 @@
+// --- UI Elements ---
 const fullNameDisplay = document.getElementById('full-name-display');
 const logoutButton = document.getElementById('logout-btn');
 const searchInput = document.getElementById('search-input');
@@ -165,6 +166,13 @@ async function init() {
         
         // Handle different signaling messages
         if (message.type === 'offer') {
+            // Check if a call is already in progress
+            if (peerConnection) {
+                console.log("Already in a call, declining new offer.");
+                declineCall();
+                return;
+            }
+
             remoteUserId = message.sender_id;
             callButtonsContainer.style.display = 'flex';
             answerButton.style.display = 'inline-block';
@@ -224,6 +232,13 @@ function endCall() {
         peerConnection.close();
         peerConnection = null;
     }
+    
+    // Stop local video tracks
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+    }
+
+    localVideo.srcObject = null;
     remoteVideo.srcObject = null;
     remoteUserId = null;
     
@@ -243,6 +258,15 @@ function declineCall() {
 
 async function createPeerConnection() {
     peerConnection = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+    
+    // Add event listener for connection state changes
+    peerConnection.oniceconnectionstatechange = (event) => {
+        console.log(`ICE connection state changed to: ${peerConnection.iceConnectionState}`);
+        if (peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'failed') {
+            console.log("WebRTC connection failed or disconnected. Ending call.");
+            endCall();
+        }
+    };
     
     localStream.getTracks().forEach(track => {
         peerConnection.addTrack(track, localStream);
@@ -269,6 +293,12 @@ async function createOffer() {
         return;
     }
 
+    if (peerConnection) {
+        console.log("A peer connection already exists. Cannot create a new offer.");
+        showMessage("A call is already active. Please end the current call first.");
+        return;
+    }
+
     await createPeerConnection();
     
     const offer = await peerConnection.createOffer();
@@ -277,6 +307,7 @@ async function createOffer() {
     websocket.send(JSON.stringify({
         type: 'offer',
         target_id: remoteUserId,
+        full_name: fullNameDisplay.textContent, // Add this for a better UX
         payload: peerConnection.localDescription
     }));
 
@@ -287,6 +318,12 @@ async function createOffer() {
 }
 
 async function handleOffer(offerPayload) {
+    if (peerConnection) {
+        console.log("Already in a call. Cannot handle a new offer.");
+        declineCall(); // Automatically decline the new offer
+        return;
+    }
+    
     await createPeerConnection();
     
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offerPayload));
