@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card p-4 shadow-sm rounded-4 login-card">
+        <h2 class="card-title text-center mb-4">Login or Register</h2>
+        
+        <!-- Display messages from the server -->
+        {% if error_message %}
+            <div class="alert alert-danger text-center">{{ error_message }}</div>
+        {% endif %}
+        {% if success_message %}
+            <div class="alert alert-success text-center">{{ success_message }}</div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <form id="login-form" action="/login" method="post" enctype="application/x-www-form-urlencoded">
+            <div class="mb-3">
+                <input type="text" class="form-control rounded-pill" id="username" name="username" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control rounded-pill" id="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary rounded-pill">Login</button>
+            </div>
+        </form>
+
+        <!-- Toggle to Registration -->
+        <hr class="my-4">
+        <p class="text-center">Don't have an account?</p>
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-outline-secondary rounded-pill" id="toggle-register-btn">Register</button>
+        </div>
+
+        <!-- Registration Form (hidden by default) -->
+        <form id="register-form" action="/register" method="post" enctype="multipart/form-data" style="display:none;">
+            <div class="mb-3 mt-3">
+                <input type="text" class="form-control rounded-pill" id="register-username" name="username" placeholder="Username" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" class="form-control rounded-pill" id="register-password" name="password" placeholder="Password" required>
+            </div>
+            <div class="mb-3">
+                <input type="text" class="form-control rounded-pill" id="full-name" name="full_name" placeholder="Full Name" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" class="form-control rounded-pill" id="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="mb-4">
+                <label for="profile-pic" class="form-label">Profile Picture:</label>
+                <input type="file" class="form-control" id="profile-pic" name="profile_pic" accept="image/*" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success rounded-pill">Create Account</button>
+            </div>
+        </form>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const toggleRegisterButton = document.getElementById('toggle-register-btn');
+        let isRegisterMode = false;
+
+        toggleRegisterButton.addEventListener('click', () => {
+            isRegisterMode = !isRegisterMode;
+            if (isRegisterMode) {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleRegisterButton.textContent = 'Back to Login';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleRegisterButton.textContent = 'Register';
+            }
+        });
+    </script>
+</body>
+</html>
