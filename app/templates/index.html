@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Video Call</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .video-box {
+            background-color: #343a40;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+        .video-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .btn-group-toggle .btn {
+            border-radius: 50rem;
+            margin: 5px;
+        }
+        #message-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+    </style>
+    <!-- Add this script tag to inject the WS URL from the server -->
+    <script>
+        const WS_URL = "{{ ws_url }}";
+    </script>
+</head>
+<body>
+
+    <div class="container text-center">
+        <h1 class="my-4 fw-bold">FastAPI Video Call</h1>
+        <p class="lead text-muted">A simple peer-to-peer video calling app using FastAPI, WebSockets, and WebRTC.</p>
+
+        <div class="card p-4 shadow-sm rounded-4">
+            <h2 class="card-title mb-3">Your ID: <span id="user-id" class="text-primary">Loading...</span></h2>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control rounded-start-pill" id="remote-id-input" placeholder="Enter remote user ID...">
+                <button class="btn btn-primary rounded-end-pill" id="call-btn">Call</button>
+            </div>
+            <p class="text-muted">Share your ID with someone to connect with them.</p>
+        </div>
+
+        <div class="video-container">
+            <div class="video-box">
+                <video id="local-video" autoplay muted playsinline></video>
+                <span class="video-label">You</span>
+            </div>
+            <div class="video-box">
+                <video id="remote-video" autoplay playsinline></video>
+                <span class="video-label">Remote</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message box for alerts -->
+    <div id="message-box" class="shadow-lg"></div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/main.js"></script>
+</body>
+</html>
